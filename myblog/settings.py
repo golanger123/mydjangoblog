@@ -125,7 +125,86 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
+# STATICFILES_DIRS=[
+#     os.path.join(BASE_DIR,'static')
+# ]
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#配置redis
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        #  redis默认是6379端口，第0的数据库，这里我们选择第5个数据库，123456是密码
+        'LOCATION': 'redis://:123456@193.134.211.26:6379/5',
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    },
+
+    'session': {
+            'BACKEND': 'django_redis.cache.RedisCache',
+            #  redis默认是6379端口，第0的数据库，选择第一个数据库 放session信息
+            'LOCATION': 'redis://:123456@193.134.211.26:6379/1',
+            'OPTIONS': {
+                'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            }
+        },
+}
+#session 存储方式改为redis
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_CACHE_ALIAS = 'session'
+
+#配置 日志模块
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+LOG_DIR = os.path.join(BASE_DIR, 'log')
+if not os.path.exists(LOG_DIR):
+    os.makedirs(LOG_DIR)
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers':False, #是否禁用已经存在的日志期
+    # 日志格式器配置
+    'formatters': {
+        'standard': {
+            'format': '%(asctime)s [%(threadName)s: %(thread)d]'
+                      '%(pathname)s: %(funcName)s: %(lineno)d %(levelname)s - %(message)s'
+        }
+    },
+    # 过滤器配置
+    'filters': {
+        'require_debug_true': {  # 过滤器名
+            '()': 'django.utils.log.RequireDebugTrue'  # 过滤器位置
+        }
+    },
+    # 处理器配置
+    'handlers': {
+        # 终端处理器配置
+        'console_handler': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'standard' # 使用上面定义的standard格式器
+        },
+        # 文件处理器配置
+        'file_handler': {
+            'level': 'DEBUG',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(LOG_DIR, 'backend_ch1_sec1.log'),
+            'maxBytes': 1024*1024*1024,  # 达到1G自动分割
+            'backupCount': 5,  # 保存备份文件的数量
+            'formatter': 'standard', # 使用上面定义的standard格式器
+            'encoding': 'utf-8'  # 指定文件编码
+        }
+    },
+    # 配置日志实例
+    'loggers': {
+        'django': {  # 日志实例名
+            'handlers': ['console_handler', 'file_handler'],
+            'filters': ['require_debug_true'],
+            'level': 'WARNING'
+        }
+    }
+}
