@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'web',
+    'blogweb',
+    'users'
 ]
 
 MIDDLEWARE = [
@@ -209,3 +210,6 @@ LOGGING = {
         }
     }
 }
+
+#替换默认的User模型
+AUTH_USER_MODEL='users.User'

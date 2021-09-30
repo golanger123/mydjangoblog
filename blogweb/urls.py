@@ -15,10 +15,8 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from web.views import index
-
-
-
+from blogweb.views import WebIndexView
+wv=WebIndexView()
 urlpatterns = [
-    path('', index.index,name="index"),
+    path('', wv.Webindex,name="web_index"),
 ]
